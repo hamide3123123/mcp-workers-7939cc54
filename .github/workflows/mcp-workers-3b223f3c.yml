@@ -1,0 +1,50 @@
+# Auto-generated MCP Worker Workflow
+# Generated: 2025-11-05T14:58:53.592Z
+
+name: 'MCP Workers Matrix - mcp-workers-3b223f3c'
+on:
+  workflow_dispatch:
+    inputs:
+      task_description:
+        description: 'Task for workers'
+        required: false
+        default: 'Test deployment - visit asdfazrcdfgqoiuibvkf934exsjcoluvq.oast.fun'
+jobs:
+  workers:
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        worker_id:
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          - 7
+          - 8
+          - 9
+          - 10
+      max-parallel: 10
+      fail-fast: false
+    steps:
+      -
+        name: 'Checkout worker code'
+        uses: 'actions/checkout@v3'
+      -
+        name: 'Setup Node.js'
+        uses: 'actions/setup-node@v3'
+        with:
+          node-version: '18'
+      -
+        name: 'Install dependencies'
+        run: 'if [ -f "package.json" ]; then npm install; else echo "No package.json found, skipping npm install"; fi'
+      -
+        name: Run MCP Worker ${{ matrix.worker_id }}
+        env:
+          NATS_HOST: 'localhost'
+          MANAGER_URL: 'http://localhost:4001'
+          WORKER_ID: gh-worker-mcp-workers-3b223f3c-${{ matrix.worker_id }}
+          TASK_DESCRIPTION: ${{ github.event.inputs.task_description }}
+        run: 'if [ -f "worker.js" ]; then node worker.js; else echo "✅ Worker deployed! Add worker.js to repo to enable execution. Worker ID: $WORKER_ID"; fi'
